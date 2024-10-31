@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python Steganography Tutorial</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="stegstyles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="progress-bar"></div>
+
+    <header>
+        <nav>
+            <ul>
+                <li><a href="#introduction">Introduction</a></li>
+                <li><a href="#visualization">How it Works</a></li>
+                <li><a href="#implementation">Understanding the Code</a></li>
+                <li><a href="#examples">Examples</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container">
+        <h1>&lt;Steganography with Python&gt;</h1>
+        
+        <section id="introduction" class="card">
+            <h2>Introduction</h2>
+            <p>
+                Steganography allows us to hide data within other files without detection. In this tutorial, we'll use Python to embed secret messages in images, creating a practical introduction to data hiding techniques.
+            </p>
+            <div class="feature-grid intro-grid">
+                <div class="feature-item intro-item">
+                    <h4>Prerequisites</h4>
+                    <p>
+                        Before you start, you'll need:
+                    </p>
+                    <ul>
+                        <li>Python installed on your computer</li>
+                        <li>PIL (Python imaging Library): <code>pip install Pillow</code></li>
+                        <li>NumPy: <code>pip install numpy</code></li>
+                    </ul>
+                </div>         
+        </section>
+
+        <div class="card">
+            <h2>Understanding PIL (Python Imaging Library)</h2>
+            <p class="section-intro">
+                This powerful library is essential for our project as it provides comprehensive tools for opening, manipulating, and saving various image formats. PIL makes it easy to access and modify individual pixels, convert between color spaces, and apply various transformations - capabilities that are crucial for implementing steganographic techniques.
+            </p>
+
+            <div class="feature-grid">
+                <div class="feature-item">
+                    <h4>What is PIL?</h4>
+                    <p>
+                        PIL is a free and open-source library that adds support for opening, manipulating, 
+                        and saving many different image file formats in Python. We're using its modern 
+                        maintained fork called 'Pillow'.
+                    </p>
+                </div>
+
+                <div class="feature-item">
+                    <h4>Why We're Using It</h4>
+                    <ul>
+                        <li>Provides direct access to image pixel data</li>
+                        <li>Supports both PNG and JPEG formats</li>
+                        <li>Efficiently converts images to NumPy arrays</li>
+                        <li>Handles image encoding and decoding</li>
+                    </ul>
+                </div>
+
+                <div class="feature-item">
+                    <h4>Key Features We Use</h4>
+                    <ul>
+                        <li><code>PIL.Image.open(image_path)</code> <br> Load our input images</li>
+                        <li><code>np.array(img, dtype=np.uint8)</code> <br> Convert images to numpy arrays we can modify</li>
+                        <li><code>Image.fromarray(modified_pixels)</code> <br> Convert our modified pixels back to an image</li>
+                        <li><code>encoded_image.save(output_path, 'PNG')</code> <br> Save our image with the hidden message</li>
+                    </ul>
+                </div>                
+            </div>
+
+            <div class="note-box">
+                <h4>📝 Important Note:</h4>
+                <p>
+                    While PIL supports many image formats, we specifically use PNG in this project because it's 
+                    lossless - meaning it won't compress and potentially destroy our hidden data like JPEG would.
+                </p>
+            </div>
+        </div>
+
+        <section id="visualization">
+            <h2>How It Works</h2>      
+    
+    <div class="subsection">       
+        
+        <div class="image-fundamentals">
+            <div class="concept-card">
+                <h4>What is a Digital Image?</h4>
+                <p>A digital image is a grid of pixels, where each pixel contains numeric values representing color information. In RGB format, each pixel has three values:</p>
+                <ul class="value-list">
+                    <li>Red (0-255)</li>
+                    <li>Green (0-255)</li>
+                    <li>Blue (0-255)</li>
+                </ul>
+            </div>
+
+            <div class="concept-card">
+                <h4>Binary Representation</h4>
+                <p>Each color value is stored as an 8-bit binary number:</p>
+                <div class="binary-examples">
+                    <div class="binary-row">
+                        <span class="number">255</span>
+                        <span class="equals">=</span>
+                        <span class="binary">11111111</span>
+                    </div>
+                    <div class="binary-row">
+                        <span class="number">128</span>
+                        <span class="equals">=</span>
+                        <span class="binary">10000000</span>
+                    </div>
+                    <div class="binary-row">
+                        <span class="number">0</span>
+                        <span class="equals">=</span>
+                        <span class="binary">00000000</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="concept-card">
+                <h4>Least Significant Bit (LSB)</h4>
+                <p>The rightmost bit in a binary number is called the LSB. Changing this bit has minimal visual impact:</p>
+                <div class="lsb-example">
+                    <div class="lsb-row">
+                        <span class="binary">10000000</span>
+                        <span class="value">(128)</span>
+                    </div>
+                    <div class="lsb-row">
+                        <span class="binary">10000001</span>
+                        <span class="value">(129)</span>
+                    </div>
+                </div>
+                <p class="note">The difference is barely perceptible to the human eye, making it perfect for hiding data.</p>
+            </div>
+
+            <div class="concept-card">
+                <h4>Example</h4>
+                <div class="pixel-example">
+                    <div class="original-pixel">
+                        <h5>Original pixel: (128, 128, 128)</h5>
+                        <div class="color-values">
+                            <div class="color-row">R: <span class="binary">10000000</span></div>
+                            <div class="color-row">G: <span class="binary">10000000</span></div>
+                            <div class="color-row">B: <span class="binary">10000000</span></div>
+                        </div>
+                    </div>
+                    <div class="modified-pixel">
+                        <h5>After hiding data:</h5>
+                        <div class="color-values">
+                            <div class="color-row">R: <span class="binary">10000001</span></div>
+                            <div class="color-row">G: <span class="binary">10000000</span></div>
+                            <div class="color-row">B: <span class="binary">10000001</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+                <div class="demo-step">
+                    <div class="step-header">
+                        <span class="step-number">1</span>
+                        <h4>Enter Your Secret Message</h4>
+                    </div>
+                    <div class="input-container">
+                        <input type="text" id="messageInput" 
+                               placeholder="Type a short message (e.g., 'Hi')" 
+                               maxlength="2"
+                        />
+                        <div class="input-hint">Start with a short message to see the process clearly</div>
+                    </div>
+                </div>
+
+                <div class="demo-step">
+                    <div class="step-header">
+                        <span class="step-number">2</span>
+                        <h4>Text to Binary Conversion</h4>
+                    </div>
+                    <div class="conversion-result">
+                        <div class="char-breakdown" id="charBreakdown"></div>
+                    </div>
+                </div>
+
+                <div class="demo-step">
+                    <div class="step-header">
+                        <span class="step-number">3</span>
+                        <h4>Distribution Into Pixels</h4>
+                    </div>
+                    <div class="pixel-grid" id="pixelGrid">
+                        <div class="pixel-row">
+                            <div class="pixel-info">Original Pixels</div>
+                            <div class="pixels" id="originalPixels"></div>
+                        </div>
+                        <div class="pixel-row">
+                            <div class="pixel-info">Modified Pixels</div>
+                            <div class="pixels" id="modifiedPixels"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="demo-step">
+                    <div class="step-header">
+                        <span class="step-number">4</span>
+                        <h4>Visual Comparison</h4>
+                    </div>
+                    <div class="visual-comparison">
+                        <div class="comparison-item">
+                            <div class="comparison-container">
+                                <div class="sample-image" id="originalImage"></div>
+                                <div class="image-label">Original</div>
+                            </div>
+                            <div class="image-values" id="originalValues"></div>
+                        </div>
+                        <div class="comparison-arrow">→</div>
+                        <div class="comparison-item">
+                            <div class="comparison-container">
+                                <div class="sample-image" id="modifiedImage"></div>
+                                <div class="image-label">With Hidden Message</div>
+                            </div>
+                            <div class="image-values" id="modifiedValues"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="implementation" class="card">
+            <h2>Understanding the Code</h2>
+            <p>Let's break down the steganography implementation into clear, manageable parts.</p>
+
+            <div class="card">                
+                <h4>Setup and Initialization</h4>
+                <p>First, we'll import required libraries, which are PIL and Numpy respectively.<br>Then create a class "Steganograpy" with a delimiter which marks the
+                   end of the message.</p>
+                <div class="code-wrapper">
+                    <pre><code class="language-python">
+from PIL import Image
+import numpy as np
+
+class Steganography:
+    def __init__(self):
+        self.delimiter = "###END###"</code></pre>
+                </div>
+            </div>
+
+            <div class="card">
+                <h4>The Method</h4>
+                <p>This method takes three parameters: the input image path, the secret message, and where to save the output.
+                   We append our delimiter to the message, then convert everything to binary. Each character becomes an 8-bit binary number.
+                   The binary conversion uses <code>format(ord(char), '08b')</code> which ensures each character is represented by exactly 8 bits.
+                </p>
+                <div class="code-wrapper">
+                    <pre><code class="language-python">
+def hide_message(self, image_path, message, output_path):
+"""The method to hide a message in an image"""
+# Add delimiter to message and convert to binary
+full_message = message + self.delimiter
+binary_message = ''.join(format(ord(char), '08b') for char in full_message)
+                </code></pre>
+                </div>
+            </div>
+
+            <div class="card">
+                <h4>Image Prep</h4>
+                <p>The image is opened using PIL's Image.open(), then converted to a NumPy array.
+We specifically use <code>dtype=np.uint8</code> to ensure our pixel values stay within 0-255 range. This is crucial for preventing errors.
+A size check ensures our message will fit in the image before we try to hide it.</p>
+                <div class="code-wrapper">
+                    <pre><code class="language-python">
+# Open and prepare image
+img = Image.open(image_path)
+pixels = np.array(img, dtype=np.uint8)  # Specify uint8 type
+
+# Check if message can fit in image
+if len(binary_message) > pixels.size:
+raise ValueError("Message too long for this image")</code></pre>
+                </div>
+            </div>
+
+            <div class="card">
+                <h4>The Hiding Process</h4>
+                <p>We create a copy of the pixel array to modify, preserving the original.
+For each bit of our message, we modify one pixel value:
+<ul>
+
+<li>Using <code>|1</code> makes a pixel odd (for hiding a 1)</li>
+<li>Using <code>&254</code> makes a pixel even (for hiding a 0)</li>
+</ul>
+
+The comment explains that 254 is 11111110 in binary, helping us understand the bit manipulation.</p>
+                <div class="code-wrapper">
+                    <pre><code class="language-python">
+# Modify pixels to hide message
+modified_pixels = pixels.copy()
+for i, bit in enumerate(binary_message):
+    # Get current pixel value
+    current_pixel = int(modified_pixels.flat[i])
+    
+    # Clear the least significant bit and set it to our message bit
+    if int(bit) == 1:
+        # If message bit is 1, make pixel odd
+        new_pixel = current_pixel | 1
+    else:
+        # If message bit is 0, make pixel even
+        new_pixel = current_pixel & 254  # 254 is 11111110 in binary
+        
+    modified_pixels.flat[i] = new_pixel</code></pre>
+                </div>
+            </div>
+
+            <div class="card">
+                <h4>Saving Our Secret Message 🥷</h4>
+                <p>The modified pixel array is converted back into an image using Image.fromarray().<br>
+We specifically save as PNG format to prevent any compression that might destroy our hidden message.<br>
+A success message is printed to confirm the operation completed.</p>
+                <div class="code-wrapper">
+                    <pre><code class="language-python">
+# Save modified image
+encoded_image = Image.fromarray(modified_pixels)
+encoded_image.save(output_path, 'PNG')
+print(f"Message hidden in {output_path}")</code></pre>
+                </div>
+            </div>
+            <div class="card">
+                <h4>Decoding the Message🧩</h4>
+                <p>This method handles extracting hidden messages from images.
+We open the image and convert it to a NumPy array, similar to the hiding process.
+Two empty strings are prepared: one for collecting binary data, one for the final text.</p>
+                <div class="code-wrapper">
+                    <pre><code class="language-python">
+def find_message(self, image_path):
+    """Find a hidden message in an image"""
+    # Open image and get pixels
+    img = Image.open(image_path)
+    pixels = np.array(img)
+    
+    binary_message = ''
+    text = ''</code></pre>
+                </div>
+            </div>
+            <div class="card">
+                <h4>Extraction🗝️</h4>
+                <p>We extract the least significant bit from each pixel using & 1.
+Every 8 bits are converted into a character and added to our message.
+We constantly check for our delimiter to know when we've found the complete message.
+If no delimiter is found, we return "No hidden message found".</p>
+                <div class="code-wrapper">
+                    <pre><code class="language-python">
+# Get least significant bit from each pixel
+for pixel in pixels.flat:
+    binary_message += str(pixel & 1)
+    
+    # Convert every 8 bits to a character
+    if len(binary_message) >= 8:
+        char = chr(int(binary_message[:8], 2))
+        text += char
+        binary_message = binary_message[8:]
+        
+        # Check if we've found the delimiter
+        if self.delimiter in text:
+            return text.split(self.delimiter)[0]
+
+return "No hidden message found"</code></pre>
+                </div>
+            </div>
+            <div class="card">
+                <h4>Main Function Block💪</h4>
+                <p>The main function creates an instance of our Steganography class.
+It's wrapped in a try-except block to handle any errors gracefully.
+The code is set up to either hide a message (currently commented out) or find a hidden message.</p>
+                <div class="code-wrapper">
+                    <pre><code class="language-python">
+def main():
+    steg = Steganography()
+    
+    # Hide a message
+    try:
+        steg.hide_message(
+            'your-special.jpg',      # Replace with your image path
+            'Abra Kadabra!',         # Your secret message
+            'top_secret.png'         # Output image path
+        )
+        
+        # Find the hidden message
+        message = steg.find_message('image_with_secret.png')
+        print(f"Found message: {message}")
+        
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
+if __name__ == '__main__':
+    main()</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <section id="examples" class="card">
+            <h2>Usage Examples</h2>
+            <p>I have supplied two scripts below, one to encode messages and the other to decode. This is just more practical 
+               then commenting out each time you want to do either of the commands.</p>
+            <h4>hide_message.py</h4>
+            <div class="code-wrapper">
+                <pre><code class="language-python">
+from steganography import Steganography
+
+# Create an instance of Steganography
+steg = Steganography()
+
+try:
+    # Hide a message in an image
+    steg.hide_message(
+        'my_image.jpg',        # Image in same folder
+        'Hello World!',        # Your secret message
+        'hidden_message.png'   # Output image name
+    )
+    print("Message hidden successfully!")
+    
+except Exception as e:
+    print(f"An error occurred: {e}")</code></pre>
+            </div>
+            <h4>find_message.py</h4>
+            <div class="code-wrapper">
+                <pre><code class="language-python">
+from steganography import Steganography
+
+# Create an instance of Steganography
+steg = Steganography()
+
+try:
+    # Find the hidden message
+    message = steg.find_message('hidden_message.png')
+    print(f"Found message: {message}")
+    
+except Exception as e:
+    print(f"An error occurred: {e}")</code></pre>
+            </div>
+            <div class="file-structure">
+    <h3>Project File Structure (IMPORTANT)</h3>
+    <p>Be sure that your file structure looks like the example below. <br>
+       Otherwise this might not work for you.</p>
+    <pre>
+# Project Structure:
+your_folder/
+    │── steganography.py     # Main steganography code
+    │── hide_message.py      # Script to hide messages
+    │── find_message.py      # Script to find messages
+    │── my_image.jpg         # Your input image
+    │── hidden_message.png   # Will be created after hiding
+    </pre>
+</div>
+
+            <div class="card mt-4">
+                <h3>Try It: Decode Message</h3>
+                <div class="interactive-example">
+                    <div class="example-image">
+                        <img src="/api/placeholder/400/320" alt="Encoded image" class="encoded-image">
+                    </div>
+                    <div class="example-controls">
+                        <button id="decodeExampleBtn" class="decode-button">Decode Message</button>
+                    </div>
+                    <div id="exampleOutput" class="example-output">
+                        Click "Decode Message" to reveal the hidden message
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <div class="toast" id="toast"></div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-python.min.js"></script>
+    <script src="steganography-scripts.js"></script>
+</body>
+</html>
