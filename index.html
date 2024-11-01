@@ -243,7 +243,7 @@
 
             <div class="card">                
                 <h4>Setup and Initialization</h4>
-                <p>First, we'll import required libraries, which are PIL and Numpy respectively.<br>Then create a class "Steganograpy" with a delimiter which marks the
+                <p>First, we'll import required libraries, which are PIL and Numpy respectively.<br>Then create a class "Steganography" with a delimiter which marks the
                    end of the message.</p>
                 <div class="code-wrapper">
                     <pre><code class="language-python">
@@ -258,7 +258,7 @@ class Steganography:
 
             <div class="card">
                 <h4>The Method</h4>
-                <p>This method takes three parameters: the input image path, the secret message, and where to save the output.
+                <p>This method takes three parameters: the input image path, the secret message, and where to save the encoded image.
                    We append our delimiter to the message, then convert everything to binary. Each character becomes an 8-bit binary number.
                    The binary conversion uses <code>format(ord(char), '08b')</code> which ensures each character is represented by exactly 8 bits.
                 </p>
@@ -353,7 +353,7 @@ def find_message(self, image_path):
             </div>
             <div class="card">
                 <h4>Extraction</h4>
-                <p>We extract the least significant bit from each pixel using & 1.
+                <p>We extract the least significant bit (LSB) from each pixel.
 Every 8 bits are converted into a character and added to our message.
 We constantly check for our delimiter to know when we've found the complete message.
 If no delimiter is found, we return "No hidden message found".</p>
@@ -380,7 +380,7 @@ return "No hidden message found"</code></pre>
                 <h4>Main Function Block</h4>
                 <p>The main function creates an instance of our Steganography class.
 It's wrapped in a try-except block to handle any errors gracefully.
-The code is set up to either hide a message (currently commented out) or find a hidden message.</p>
+The code is set up to either hide a message or find a hidden message.</p>
                 <div class="code-wrapper">
                     <pre><code class="language-python">
 def main():
