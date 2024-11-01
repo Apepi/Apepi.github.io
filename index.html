@@ -322,7 +322,7 @@ for i, bit in enumerate(binary_message):
             </div>
 
             <div class="card">
-                <h4>Saving Our Secret Message 🥷</h4>
+                <h4>Saving Our Secret Message </h4>
                 <p>The modified pixel array is converted back into an image using Image.fromarray().<br>
 We specifically save as PNG format to prevent any compression that might destroy our hidden message.<br>
 A success message is printed to confirm the operation completed.</p>
@@ -335,7 +335,7 @@ print(f"Message hidden in {output_path}")</code></pre>
                 </div>
             </div>
             <div class="card">
-                <h4>Decoding the Message🧩</h4>
+                <h4>Decoding the Message</h4>
                 <p>This method handles extracting hidden messages from images.
 We open the image and convert it to a NumPy array, similar to the hiding process.
 Two empty strings are prepared: one for collecting binary data, one for the final text.</p>
@@ -352,7 +352,7 @@ def find_message(self, image_path):
                 </div>
             </div>
             <div class="card">
-                <h4>Extraction🗝️</h4>
+                <h4>Extraction</h4>
                 <p>We extract the least significant bit from each pixel using & 1.
 Every 8 bits are converted into a character and added to our message.
 We constantly check for our delimiter to know when we've found the complete message.
@@ -377,7 +377,7 @@ return "No hidden message found"</code></pre>
                 </div>
             </div>
             <div class="card">
-                <h4>Main Function Block💪</h4>
+                <h4>Main Function Block</h4>
                 <p>The main function creates an instance of our Steganography class.
 It's wrapped in a try-except block to handle any errors gracefully.
 The code is set up to either hide a message (currently commented out) or find a hidden message.</p>
