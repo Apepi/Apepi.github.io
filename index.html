@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Python Steganography Tutorial</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism-tomorrow.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="stegstyles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
@@ -20,6 +20,7 @@
                 <li><a href="#visualization">How it Works</a></li>
                 <li><a href="#implementation">Understanding the Code</a></li>
                 <li><a href="#examples">Examples</a></li>
+                <li><a href="#the-code">The Code</a></li>
             </ul>
         </nav>
     </header>
@@ -421,9 +422,9 @@ steg = Steganography()
 try:
     # Hide a message in an image
     steg.hide_message(
-        'my_image.jpg',        # Image in same folder
-        'Hello World!',        # Your secret message
-        'hidden_message.png'   # Output image name
+        'your-special.jpg',        # Image in same folder
+        'Abra Kadabra!',        # Your secret message
+        'top_secret.png'   # Output image name
     )
     print("Message hidden successfully!")
     
@@ -477,11 +478,109 @@ your_folder/
             </div>
         </section>
     </div>
+    <section id="the-code" class="card">
+        <h4>The Code</h4>
+        <p>
+        The code, the whole code, and nothing but the code.
+        </p>
+        <div class="code-wrapper">
+                <pre><code class="language-python">
+from PIL import Image
+import numpy as np
+
+class Steganography:
+    def __init__(self):
+        self.delimiter = "###END###"
+        
+    def hide_message(self, image_path, message, output_path):
+        """The method to hide a message in an image"""
+        # Add delimiter to message and convert to binary
+        full_message = message + self.delimiter
+        binary_message = ''.join(format(ord(char), '08b') for char in full_message)
+        
+        # Open and prepare image
+        img = Image.open(image_path)
+        pixels = np.array(img, dtype=np.uint8)  # Specify uint8 type
+        
+        # Check if message can fit in image
+        if len(binary_message) > pixels.size:
+            raise ValueError("Message too long for this image")
+            
+        # Modify pixels to hide message
+        modified_pixels = pixels.copy()
+        for i, bit in enumerate(binary_message):
+            # Get current pixel value
+            current_pixel = int(modified_pixels.flat[i])
+            
+            # Clear the least significant bit and set it to our message bit
+            if int(bit) == 1:
+                # If message bit is 1, make pixel odd
+                new_pixel = current_pixel | 1
+            else:
+                # If message bit is 0, make pixel even
+                new_pixel = current_pixel & 254  # 254 is 11111110 in binary
+                
+            modified_pixels.flat[i] = new_pixel
+        
+        # Save modified image
+        encoded_image = Image.fromarray(modified_pixels)
+        encoded_image.save(output_path, 'PNG')
+        print(f"Message hidden in {output_path}")
+            
+    def find_message(self, image_path):
+        """Find a hidden message in an image"""
+        # Open image and get pixels
+        img = Image.open(image_path)
+        pixels = np.array(img)
+        
+        # Extract the binary message
+        binary_message = ''
+        text = ''
+        
+        # Get least significant bit from each pixel
+        for pixel in pixels.flat:
+            binary_message += str(pixel & 1)
+            
+            # Convert every 8 bits to a character
+            if len(binary_message) >= 8:
+                char = chr(int(binary_message[:8], 2))
+                text += char
+                binary_message = binary_message[8:]
+                
+                # Check if we've found the delimiter
+                if self.delimiter in text:
+                    return text.split(self.delimiter)[0]
+        
+        return "No hidden message found"
+
+# Example usage
+def main():
+    steg = Steganography()
+    
+    # Hide a message
+    try:
+        steg.hide_message(
+            'your-special.jpg',        # Replace with your image path
+            'Abra Kadabra!',         # Your secret message
+            'top_secret.png'  # Output image path
+        )
+        
+        # Find the hidden message
+        message = steg.find_message('image_with_secret.png')
+        print(f"Found message: {message}")
+        
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
+if __name__ == '__main__':
+    main()</code></pre>
+            </div>
+    </section>
 
     <div class="toast" id="toast"></div>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-python.min.js"></script>
-    <script src="assets/js/script.js"></script>
+    <script src="steganography-scripts.js"></script>
 </body>
 </html>
